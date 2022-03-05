@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+
+# To run everyday, use this as a run script:
+#
+#     #!/bin/sh -e
+#     exec snooze -s 1d -t /var/cache/void-update -- /path/to/this/script
+#
+# see man:snooze(1) for more options
+
+set -e
+
+LOG=${1:-0}
+
+msg() {
+    #echo "$1"
+    if [ "${LOG}" -ne 0 ]; then
+    	logger -s --id=$$ -t void-update -p cron.notice "$1"
+    fi
+}
+
+boot_toggle() {
+	msg "Remounting /boot $1..."
+	mount /boot -o remount,"$1"
+}
+
+#test -z "$(command -v nm-online)" || {
+#	msg 'Waiting for network connection...'
+#	nm-online -q -x
+#}
+
+#test -z "$(command -v connmanctl)" || {
+#    msg 'Waiting for network connection...'
+#    #connmanctl state | awk '/State/ { print $3 }'
+#}
+
+#test -z "$(command -v curl)" || {
+#    msg 'Waiting for network connection...'
+#    #connmanctl state | awk '/State/ { print $3 }'
+#}
+
+check_connection() {
+    if ping -W10 -c1 8.8.8.8 >/dev/null; then
+	    msg 'Network connection: online'
+    else
+	    msg 'Network connection: offline'
+	    exit 1
+    fi
+}
+
+check_connection
+
+msg 'Syncing repositories (xbps-install -S)'
+xbps-install -S 1>/dev/null
+
+msg 'Updating packages (xbps-install -yu)'
+xbps-install -yu 1>/dev/null
+
+msg 'Cleaning package cache (xbps-remove -yO)'
+xbps-remove -yO 1>/dev/null
+
+msg 'Removing orphaned packages (xbps-remove -yo)'
+xbps-remove -yo 1>/dev/null
+
+msg 'Syncing xlocate (xlocate -S)'
+xlocate -S 1>/dev/null
+
+msg 'Purging old kernels (vkpurge rm all)'
+vkpurge rm all 1>/dev/null
+
+touch /var/cache/void-update
+msg 'Update completed successfully.'
+
