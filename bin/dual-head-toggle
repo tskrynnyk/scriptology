@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# dual-head-toggle
+#
+
+#xrandr --output LVDS1 --primary --auto --output VGA1 --right-of LVDS1 --auto --brightness 1.1
+
+PRI_OUTPUT=HDMI-1
+PRI_ROTATE=normal
+PRI_BRIGHTNESS=1.0
+
+SEC_OUTPUT=VGA-1
+# inverted|left|normal|right
+SEC_ROTATE=normal
+SEC_BRIGHTNESS=1.0
+# --left-of|--right-of|--above|--below|--same-as
+SEC_POSITION='--left-of'
+
+xrandr --output $PRI_OUTPUT --primary
+
+if [ -n "$(xrandr --query | grep "$SEC_OUTPUT connected")" ]; then
+    xrandr \
+        --output $PRI_OUTPUT \
+        --primary \
+        --rotate $PRI_ROTATE \
+        --brightness $PRI_BRIGHTNESS \
+        --auto \
+        --output $SEC_OUTPUT \
+        $SEC_POSITION $PRI_OUTPUT \
+        --rotate $SEC_ROTATE \
+        --brightness $SEC_BRIGHTNESS \
+        --auto
+else
+    xrandr --output $SEC_OUTPUT --off
+fi
+
