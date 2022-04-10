@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+#
+
+[ "$(command -v khal)" ] || { echo 'File not found'; exit 1; }
+
+TO=${1:-1}
+shift
+khal calendar now $(date -d "$TO months" "+%d.%m.%Y") $*
+

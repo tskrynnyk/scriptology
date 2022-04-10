@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+#
+
+[ "$(command -v todo)" ] || { echo 'File not found'; exit 1; }
+
+TO=${1:-1}
+shift
+todo list --due $((($(date -d "$TO days 23:59:59" +%s) - $(date +%s)) / 60 / 60)) --sort due --no-reverse $*
+
