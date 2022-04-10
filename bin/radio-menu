@@ -3,6 +3,8 @@
 #set -x
 
 RADIO_DIR=~/radio
+RADIO_LOG=${RADIO_DIR}/.history.log
+
 RAINBOW_MENU=y
 
 [ -d "$RADIO_DIR" ] || { echo "Error: $RADIO_DIR not found."; exit 1; }
@@ -48,7 +50,7 @@ while true; do
             break
             ;;
         l)
-            cat ${RADIO_DIR}/.select.log
+            cat ${RADIO_LOG}
             _hit_any_key
             continue
             ;;
@@ -64,7 +66,7 @@ while true; do
                 echo
                 read -sn1 -p 'Scrobble? [Y/n] > ' PROFILE
                 [ "$PROFILE" == "n" ] && P=radio || P=music
-                printf "%s;%s;%s\n" $(date "+%F %T") ${RADIO[$IDX]} >>${RADIO_DIR}/.select.log
+                printf "%s;%s;%s\n" $(date "+%F %T") ${RADIO[$IDX]} >>${RADIO_LOG}
                 mpv --profile=${P} ${RADIO_DIR}/${RADIO[$IDX]}
             else
                 echo 'Not found.'
