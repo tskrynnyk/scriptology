@@ -1,16 +1,18 @@
 #!/usr/bin/env bash
 #
-# https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#Pattern-Matching
-#
 #set -x
+
+RADIO_DIR=~/radio
+
+[ -d "$RADIO_DIR" ] || { echo "Error: $RADIO_DIR not found."; exit 1; }
 
 _hit_any_key() {
     echo
     read -sn 1 -p "Hit any key to continue... "
 }
 
-#RADIO=($(ls ~/radio))
-readarray RADIO < <(ls ~/radio)
+#RADIO=($(ls $RADIO_DIR))
+readarray RADIO < <(ls $RADIO_DIR)
 
 _get_rainbow_menu() {
     color=130
@@ -47,18 +49,18 @@ while true; do
             printf "Nº %s: \e[38;5;222m%s\e[0m\n" $OPTION ${RADIO[$IDX]%.*}
             echo 'Source:'
             tput setaf 8
-            cat ~/radio/${RADIO[$IDX]}
+            cat ${RADIO_DIR}/${RADIO[$IDX]}
             tput sgr0
             echo
             read -sn1 -p 'Scrobble? [Y/n] > ' PROFILE
             [ "$PROFILE" == "n" ] && P=radio || P=music
-            printf "%s;%s;%s\n" $(date "+%F %T") ${RADIO[$IDX]} >>~/radio/.select.log
-            mpv --profile=${P} ~/radio/${RADIO[$IDX]}
+            printf "%s;%s;%s\n" $(date "+%F %T") ${RADIO[$IDX]} >>${RADIO_DIR}/.select.log
+            mpv --profile=${P} ${RADIO_DIR}/${RADIO[$IDX]}
             _hit_any_key
             continue
             ;;
         l)
-            cat ~/radio/.select.log
+            cat ${RADIO_DIR}/.select.log
             _hit_any_key
             continue
             ;;
