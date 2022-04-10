@@ -50,7 +50,7 @@ while true; do
             break
             ;;
         l)
-            cat ${RADIO_LOG}
+            cat ${RADIO_LOG} | column -t --table-columns DATE,TIME,STATION -s ';'
             _hit_any_key
             continue
             ;;
