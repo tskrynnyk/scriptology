@@ -3,8 +3,11 @@
 #set -x
 
 RADIO_DIR=~/radio
+RAINBOW_MENU=y
 
 [ -d "$RADIO_DIR" ] || { echo "Error: $RADIO_DIR not found."; exit 1; }
+
+B62=($(echo {0..9} {a..z} {A..Z}))
 
 _hit_any_key() {
     echo
@@ -18,20 +21,17 @@ _get_rainbow_menu() {
     color=130
     printf "Please select:\n\n"
     for i in ${!RADIO[@]}; do 
-        printf "%3x: \e[38;5;%im%-23s\e[0m\n" $i $color ${RADIO[$i]}
+        printf "%2s: \033[38;5;%im%-23s\033[0m\n" ${B62[$i]} $color ${RADIO[$i]}
         [ "$color" -le 160 ] && let color++ || color=130
     done | column
-    echo
 }
 
 _get_menu() {
     printf "Please select:\n\n"
     tput setaf 3
     for i in ${!RADIO[@]}; do 
-        #printf "%3x: %s\n" $(expr $i + 1) ${RADIO[$i]}
-        printf "%3x: %s\n" $i ${RADIO[$i]}
+        printf "%3x: %s\n" $(expr $i + 1) ${RADIO[$i]}
     done | column
-    echo
     tput sgr0
 }
 
@@ -39,33 +39,38 @@ shopt -s extglob
 
 while true; do
     clear
-    _get_rainbow_menu
-    read -p "/[0-9a-f]|l|q/ > " OPTION
+    [ "$RAINBOW_MENU" ] && _get_rainbow_menu || _get_menu
+    echo
+    read -n1 -p "/[0-9a-zA-Z]|l|q/ > " OPTION
     echo
     case $OPTION in
-        +([0-9a-f]))
-            #IDX=$(expr $((16#$OPTION)) - 1)
-            IDX=$((16#$OPTION))
-            printf "Nº %s: \e[38;5;222m%s\e[0m\n" $OPTION ${RADIO[$IDX]%.*}
-            echo 'Source:'
-            tput setaf 8
-            cat ${RADIO_DIR}/${RADIO[$IDX]}
-            tput sgr0
-            echo
-            read -sn1 -p 'Scrobble? [Y/n] > ' PROFILE
-            [ "$PROFILE" == "n" ] && P=radio || P=music
-            printf "%s;%s;%s\n" $(date "+%F %T") ${RADIO[$IDX]} >>${RADIO_DIR}/.select.log
-            mpv --profile=${P} ${RADIO_DIR}/${RADIO[$IDX]}
-            _hit_any_key
-            continue
+        q)
+            break
             ;;
         l)
             cat ${RADIO_DIR}/.select.log
             _hit_any_key
             continue
             ;;
-        q)
-            break
+        +([0-9a-zA-Z]))
+            #IDX=$(($OPTION - 1))
+            IDX=$((62#$OPTION))
+            if [ ${RADIO[$IDX]} ]; then
+                printf "\033[38;5;222m%s\033[0m\n" ${RADIO[$IDX]%.*}
+                echo 'Source:'
+                tput setaf 8
+                cat ${RADIO_DIR}/${RADIO[$IDX]}
+                tput sgr0
+                echo
+                read -sn1 -p 'Scrobble? [Y/n] > ' PROFILE
+                [ "$PROFILE" == "n" ] && P=radio || P=music
+                printf "%s;%s;%s\n" $(date "+%F %T") ${RADIO[$IDX]} >>${RADIO_DIR}/.select.log
+                mpv --profile=${P} ${RADIO_DIR}/${RADIO[$IDX]}
+            else
+                echo 'Not found.'
+            fi
+            _hit_any_key
+            continue
             ;;
         *)
             echo "Invalid entry."
