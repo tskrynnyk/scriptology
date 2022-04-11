@@ -23,18 +23,18 @@ _get_rainbow_menu() {
     color=130
     printf "Please select:\n\n"
     for i in ${!RADIO[@]}; do 
-        printf "%2s: \033[38;5;%im%-23s\033[0m\n" ${B62[$i]} $color ${RADIO[$i]}
+        printf "%2s: \033[38;5;%im%-24s\033[0m\n" ${B62[$i]} $color ${RADIO[$i]}
         [ "$color" -le 160 ] && let color++ || color=130
     done | column
 }
 
 _get_menu() {
     printf "Please select:\n\n"
-    tput setaf 3
+    #tput setaf 3
     for i in ${!RADIO[@]}; do 
-        printf "%3x: %s\n" $(expr $i + 1) ${RADIO[$i]}
+        printf "%3x: %-24s\n" $(expr $i + 1) ${RADIO[$i]}
     done | column
-    tput sgr0
+    #tput sgr0
 }
 
 shopt -s extglob
