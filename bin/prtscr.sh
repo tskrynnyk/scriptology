@@ -20,20 +20,21 @@ Options:
     rc : region to clipboard
     wc : window to clipboard
 
-Shortcuts:
+Proposed Shortcuts:
     PrtSc                : screen to pictures
     PrtSc + Shift        : region to pictures
     PrtSc + Alt          : window to pictures
     PrtSc + Ctrl         : screen to clipboard
     PrtSc + Ctrl + Shift : region to clipboard
     PrtSc + Ctrl + Alt   : window to clipboard
+
 EOF
 }
 
 case "$1" in
     sp)
         # PrtSc                : screen to pictures
-        scrot    $PRTSCR_FNAME -e "mv $f $PRTSCR_DIR"
+        scrot $PRTSCR_FNAME -e "mv $f $PRTSCR_DIR"
         ;;
     rp)
         # PrtSc + Shift        : region to pictures
@@ -45,7 +46,7 @@ case "$1" in
         ;;
     sc)
         # PrtSc + Ctrl         : screen to clipboard
-        scrot    /tmp/$PRTSCR_FNAME -e 'xclip -sel c -t image/png $f && rm $f'
+        scrot /tmp/$PRTSCR_FNAME -e 'xclip -sel c -t image/png $f && rm $f'
         ;;
     rc)
         # PrtSc + Ctrl + Shift : region to clipboard
@@ -53,7 +54,6 @@ case "$1" in
         ;;
     wc)
         # PrtSc + Ctrl + Alt   : window to clipboard
-        Print + alt + ctrl
         scrot -u /tmp/$PRTSCR_FNAME -e 'xclip -sel c -t image/png $f && rm $f'
         ;;
     *)
