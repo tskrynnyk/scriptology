@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
+#set -x
+
 #echo -n >/dev/tcp/8.8.8.8/53; echo $?
 #cat < /dev/null > /dev/tcp/8.8.8.8/53 &>/dev/null
 ping -W5 -c1 1.1.1.$((RANDOM%10)) &>/dev/null
+
 RET=$?
-[[ $RET -eq 0 ]] && touch ~/.online || ( rm -f ~/.online; exit $RET )
-[[ "$1" == 'ip' ]] && ( curl -s -4 https://icanhazip.com/ | tee -a ~/.online )
+
+[ "$RET" -eq 0 ] && ( touch ~/.online; ) || ( rm -f ~/.online; exit $RET; )
+[ "$1" == 'ip' ] && ( curl -s -4 https://icanhazip.com/ | tee -a ~/.online )
 
 exit $RET
