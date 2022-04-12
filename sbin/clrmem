@@ -1,0 +1,21 @@
+#! /bin/sh
+#sync && echo 3 >/proc/sys/vm/drop_caches && swapoff -a && swapon -a && printf '%s\n' 'Ram-cache and the swap get cleared'
+
+_log() {
+    [ "$1" ] && INFO="${1}... " || INFO="Done.\n"
+    printf "%b" "$INFO"
+}
+
+_log 'Sync'
+sync && \
+_log && \
+_log 'Drop caches' && \
+echo 3 >/proc/sys/vm/drop_caches && \
+_log && \
+_log 'Swap Off' && \
+swapoff -a && \
+_log && \
+_log 'Swap On' && \
+swapon -a && \
+_log
+
