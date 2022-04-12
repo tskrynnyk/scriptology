@@ -2,5 +2,7 @@
 
 ## Install
 
-    install -m 750 <progname> ~/bin
+    install -m 0755 ./bin/<scriptname> ~/bin
+    install -m 0750 ./sbin/<scriptname> /usr/local/sbin
+
 
