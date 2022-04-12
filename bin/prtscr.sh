@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 #
 
-BEEP='ogg123 -q /usr/share/sounds/freedesktop/stereo/bell.oga'
-#BEEP='beepbop short_up'
+PRTSCR_FNAME='%Y-%m-%d_%H:%M:%S_$wx$h.png'
+PRTSCR_DIR=~/docs/images/screenshots/desktop/
+
+PRTSCR_BEEP='ogg123 -q /usr/share/sounds/freedesktop/stereo/bell.oga'
+#PRTSCR_BEEP='beepbop short_up'
 
 _help() {
 cat <<EOF
@@ -30,28 +33,28 @@ EOF
 case "$1" in
     sp)
         # PrtSc                : screen to pictures
-        scrot    '%Y-%m-%d_%H:%M:%S_$wx$h.png' -e 'mv $f ~/docs/images/screenshots/desktop/'
+        scrot    $PRTSCR_FNAME -e "mv $f $PRTSCR_DIR"
         ;;
     rp)
         # PrtSc + Shift        : region to pictures
-        sleep 0.3; scrot -s '%Y-%m-%d_%H:%M:%S_$wx$h.png' -e 'mv $f ~/docs/images/screenshots/desktop/'
+        sleep 0.3; scrot -s $PRTSCR_FNAME -e "mv $f $PRTSCR_DIR"
         ;;
     wp)
         # PrtSc + Alt          : window to pictures
-        scrot -u '%Y-%m-%d_%H:%M:%S_$wx$h.png' -e 'mv $f ~/docs/images/screenshots/desktop/'
+        scrot -u $PRTSCR_FNAME -e "mv $f $PRTSCR_DIR"
         ;;
     sc)
         # PrtSc + Ctrl         : screen to clipboard
-        scrot    '/tmp/%Y-%m-%d_%H:%M:%S_$wx$h.png' -e 'xclip -sel c -t image/png $f && rm $f'
+        scrot    /tmp/$PRTSCR_FNAME -e 'xclip -sel c -t image/png $f && rm $f'
         ;;
     rc)
         # PrtSc + Ctrl + Shift : region to clipboard
-        sleep 0.3; scrot -s '/tmp/%Y-%m-%d_%H:%M:%S_$wx$h.png' -e 'xclip -sel c -t image/png $f && rm $f'
+        sleep 0.3; scrot -s /tmp/$PRTSCR_FNAME -e 'xclip -sel c -t image/png $f && rm $f'
         ;;
     wc)
         # PrtSc + Ctrl + Alt   : window to clipboard
         Print + alt + ctrl
-        scrot -u '/tmp/%Y-%m-%d_%H:%M:%S_$wx$h.png' -e 'xclip -sel c -t image/png $f && rm $f'
+        scrot -u /tmp/$PRTSCR_FNAME -e 'xclip -sel c -t image/png $f && rm $f'
         ;;
     *)
         _help
@@ -59,5 +62,5 @@ case "$1" in
         ;;
 esac
 
-[ "$BEEP" ] && exec $BEEP
+[ "$PRTSCR_BEEP" ] && exec $PRTSCR_BEEP
 
