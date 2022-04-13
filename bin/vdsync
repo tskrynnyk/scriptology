@@ -1,0 +1,3 @@
+#!/bin/sh
+vdirsyncer sync 2>&1 | grep -vE '^Syncing'
+exit 0
