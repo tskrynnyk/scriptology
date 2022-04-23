@@ -1,0 +1,93 @@
+#!/usr/bin/env python
+#
+
+import sys
+from random import choice
+
+art_slices = [[
+    'świat się zmienia, my się zmieniamy, zatem',
+    'praktyka dnia codziennego dowodzi, że',
+    'moi drodzy,',
+    'nie zapominajmy, że',
+    'roli i znaczenia sztuki nie da się przecenić,',
+    'w chwili obecnej',
+    'ogólnie wiadomo, że',
+    'wszyscy zdajemy sobie sprawę, dlaczego',
+    'troska o wysoki poziom twórczości, a szczególnie',
+    'różnorodne i bogate doświadczenie, a także',
+    'musimy zrozumieć powagę sytuacji, bo tylko',
+], [
+    'stały wzrost ilości i zakresu ekspozycji dzieła',
+    'aktualny poziom percepcji i recepcji sztuki',
+    'dalszy rozwój różnych form sztuki współczesnej',
+    'stałe zabezpieczenie informacyjno-propagandowe',
+    'rozwijanie i umacnianie współpracy młodych twórców',
+    'możliwość konsultacji z autorytetami w dziedzinie sztuki',
+    'potrzeba usunięcia barier między odbiorcą dzieła a jego autorem',
+    'rozpoczęcie powszechnej dyskusji nad kształtem sztuki XXI wieku',
+    'spełnienie naturalnych potrzeb rodzimych artystów',
+    'pogłębiona analiza aktualnych trendów',
+    'nakreślenie i realizacja nowych kierunków'
+], [
+    'zmusza nas do przeanalizowania',
+    'spełnia istotną rolę w kształtowaniu',
+    'wymaga określenia i sprecyzowania',
+    'może pomóc w przygotowaniu i realizacji',
+    'pozwala nam świadomie wpływać na procesy w obszarze',
+    'zabezpiecza udział szerokiego audytorium w kształtowaniu',
+    'spełnia ważne zadanie w wypracowaniu',
+    'umożliwia w większym stopniu twórcze podejście do',
+    'zmusza nas do stworzenia lub zmiany',
+    'przedstawia interesującą próbę sprawdzenia',
+    'pociąga za sobą proces wdrażania'
+], [
+    'istniejących warunków promocji wszelkich przejawów rodzimej twórczości',
+    'dalszych kierunków rozwoju bazy dla naszych artystów',
+    'systemu wielopłaszczyznowego i powszechnego udziału w formach odbioru nowej sztuki',
+    'postaw odbiorcy wobec złożonych zagadnień obecnej kultury',
+    'propozycji programowych w obliczu nowych wyznań',
+    'programu stworzenia nowego odbiorcy-uczestnika i współtwórcy',
+    'systemu wprowadzania nowego pokolenia w obszary zdarzeń artystycznych',
+    'odpowiednich warunków integrowania środowisk twórczych',
+    'istotnych założeń w istniejących relacjach',
+    'modelu rozwoju',
+    'wszelkich form twórczego oddziaływania'
+]]
+
+slices = art_slices
+
+ns = 1
+np = 1
+
+def sentence():
+    section = [
+        choice(s) 
+        for s in slices
+    ]
+    s = " ".join(section)
+    
+    return "%s%s." % (s[0].upper(), s[1:])
+
+def paragraph():
+    return " ".join(sentence() for i in range(ns))
+
+def paragraphs():
+    pars = []
+    for i in range(np):
+        pars.append(paragraph())
+
+    return "\n\n".join(pars)
+
+def main():
+    print(paragraphs())
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        try:
+            ns = int(sys.argv[1])
+            np = int(sys.argv[2])
+        except IndexError:
+            pass
+
+    main()
+
