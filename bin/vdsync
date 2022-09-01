@@ -1,3 +1,3 @@
 #!/bin/sh
-vdirsyncer sync 2>&1 | grep -vE '^Syncing'
+vdirsyncer -v WARNING sync
 exit 0
