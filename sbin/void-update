@@ -49,23 +49,23 @@ check_connection() {
 check_connection
 
 msg 'Syncing repositories (xbps-install -S)'
-sudo xbps-install -S 1>/dev/null
+xbps-install -S 1>/dev/null
 
 msg 'Updating packages (xbps-install -yu)'
-sudo xbps-install -yu 1>/dev/null
+xbps-install -yu 1>/dev/null
 
 msg 'Cleaning package cache (xbps-remove -yO)'
-sudo xbps-remove -yO 1>/dev/null
+xbps-remove -yO 1>/dev/null
 
 msg 'Removing orphaned packages (xbps-remove -yo)'
-sudo xbps-remove -yo 1>/dev/null
+xbps-remove -yo 1>/dev/null
 
 #msg 'Syncing xlocate (xlocate -S)'
 #sudo xlocate -S 1>/dev/null
 
 msg 'Purging old kernels (vkpurge rm all)'
-sudo vkpurge rm all 1>/dev/null
+vkpurge rm all 1>/dev/null
 
-sudo touch /var/cache/void-update
+touch /var/cache/void-update
 msg 'Update completed successfully.'
 
