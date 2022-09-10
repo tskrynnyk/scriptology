@@ -9,12 +9,11 @@
 
 set -e
 
-LOG=${1:-0}
-
 msg() {
-    #echo "$1"
-    if [ "${LOG}" -ne 0 ]; then
-        logger -s --id=$$ -t void-update -p cron.notice "$1"
+    if [ -t 1 ] ; then
+        echo "$1"
+    else
+        logger -s --id=$$ -t void-update -p cron.notice "$1" 1>/dev/null
     fi
 }
 
