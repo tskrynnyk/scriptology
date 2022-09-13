@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+#
+#set -x
+
+# https://commons.wikimedia.org/wiki/File:Xterm_256color_chart.svg
+#
+# http://pod.tst.eu/http://cvs.schmorp.de/rxvt-unicode/doc/rxvt.7.pod#XTerm_Operating_System_Commands
+# http://rtfm.etla.org/xterm/ctlseq.html
+# https://misc.flogisoft.com/bash/tip_colors_and_formatting
+# 
+# On ANSI colours, bold/blink attributes are used 
+# to set high-intensity foreground/background colours.
+# color0-7 are the low-intensity colours.
+# color8-15 are the corresponding high-intensity colours.
+#
+# Manipulate colors 0-256
+# \033]4;{index};{color}\007
+#
+# Change color 7 to #FFFFFF
+# \033]4;7;#FFFFFF\007
+#
+# Change color 14 to #333333
+# \033]4;14;#333333\007
+#
+# Manipulate special colors.
+# 10 = foreground
+# 11 = background
+# 12 = cursor foregound
+# 13 = mouse foreground
+# 14 = mouse background
+# 17 = background colour of highlight characters
+# 19 = foreground colour of highlight characters
+#
+# 708 = terminal border background
+# \033]{index};{color}\007
+#
+# Change the terminal foreground to #FFFFFF
+# \033]10;#FFFFFF\007
+#
+# Change the terminal background to #000000
+# \033]11;#000000\007
+#
+# Change the terminal cursor to #FFFFFF
+# \033]12;#FFFFFF\007
+#
+# Change the terminal border background to #000000
+# \033]708;#000000\007
+#
+# black|blue|green|cyan|red|magenta|yellow|white|default
+#
+
+_reset() {
+    exit
+}
+
+new_colors() {
+    printf '\033]10;%s\007\033]11;%s\007\033]12;%s\007\033]13;%s\007\033]14;%s\007\033]17;%s\007\033]19;%s\007' \
+    "$FG_COLOR" "$BG_COLOR" "$CURSOR_COLOR" "$MOUSE_FG_COLOR" "$MOUSE_BG_COLOR" "$HI_FG_COLOR" "$HI_BG_COLOR"
+}
+
+RANDOM_COLOR='#'$(openssl rand -hex 3)
+
+#FG_COLOR=${1:-white}
+FG_COLOR=${1:-$RANDOM_COLOR}
+
+BG_COLOR=${2:-black}
+#BG_COLOR=${2:-$RANDOM_COLOR}
+
+[ "$1" == 'random' ] && FG_COLOR=$RANDOM_COLOR
+#[ "$2" == 'random' ] && BG_COLOR=$RANDOM_COLOR
+
+CURSOR_COLOR=$FG_COLOR
+MOUSE_FG_COLOR=yellow
+MOUSE_BG_COLOR=black
+HI_FG_COLOR=$BG_COLOR
+HI_BG_COLOR=$FG_COLOR
+
+
+#printf '\033]10;%s\007\033]11;%s\007\033]12;%s\007\033]13;%s\007' \
+#    "$FG_COLOR" "$BG_COLOR" "$CURSOR_COLOR" "$MOUSE_FG_COLOR" "$MOUSE_BG_COLOR"
+
+new_colors
+
+echo "$FG_COLOR" "$BG_COLOR"
+
