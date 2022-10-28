@@ -2,7 +2,7 @@
 #
 #set -x
 
-RADIO_DIR=~/radio
+RADIO_DIR=${XDG_CONFIG_HOME}/radio
 RADIO_LOG=${RADIO_DIR}/.history.log
 
 RAINBOW_MENU=y
@@ -43,13 +43,13 @@ while true; do
     clear
     [ "$RAINBOW_MENU" ] && _get_rainbow_menu || _get_menu
     echo
-    read -n1 -p "/[0-9a-zA-Z]|l|q/ > " OPTION
+    read -n1 -p "/[0-9a-zA-Z]|.|Q/ > " OPTION
     echo
     case $OPTION in
-        q)
+        Q)
             break
             ;;
-        l)
+        L)
             cat ${RADIO_LOG} | column -t --table-columns DATE,TIME,STATION -s ';'
             _hit_any_key
             continue

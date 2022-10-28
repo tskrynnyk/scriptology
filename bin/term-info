@@ -14,7 +14,9 @@ redraw() {
 }
 
 trap redraw WINCH
+trap "tput cnorm; exit" SIGINT
 
+tput civis
 redraw
 while true; do
     :
