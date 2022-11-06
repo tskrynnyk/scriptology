@@ -34,15 +34,15 @@ EOF
 case "$1" in
     sp)
         # PrtSc                : screen to pictures
-        scrot $PRTSCR_FNAME -e "mv $f $PRTSCR_DIR"
+        scrot $PRTSCR_FNAME -e "mv \$f $PRTSCR_DIR"
         ;;
     rp)
         # PrtSc + Shift        : region to pictures
-        sleep 0.3; scrot -s $PRTSCR_FNAME -e "mv $f $PRTSCR_DIR"
+        sleep 0.3; scrot -s $PRTSCR_FNAME -e "mv \$f $PRTSCR_DIR"
         ;;
     wp)
         # PrtSc + Alt          : window to pictures
-        scrot -u $PRTSCR_FNAME -e "mv $f $PRTSCR_DIR"
+        scrot -u $PRTSCR_FNAME -e "mv \$f $PRTSCR_DIR"
         ;;
     sc)
         # PrtSc + Ctrl         : screen to clipboard
