@@ -5,7 +5,7 @@
 RADIO_DIR=${XDG_CONFIG_HOME}/radio
 RADIO_LOG=${RADIO_DIR}/.history.log
 
-RAINBOW_MENU=y
+#RAINBOW_MENU=y
 
 [ -d "$RADIO_DIR" ] || { echo "Error: $RADIO_DIR not found."; exit 1; }
 
@@ -20,19 +20,23 @@ _hit_any_key() {
 readarray RADIO < <(ls $RADIO_DIR)
 
 _get_rainbow_menu() {
+    fmt="%2s: \033[38;5;%im%-24s\033[0m\n"
     color=130
+    menu=''
     printf "Please select:\n\n"
     for i in ${!RADIO[@]}; do 
-        printf "%2s: \033[38;5;%im%-24s\033[0m\n" ${B62[$i]} $color ${RADIO[$i]}
+        menu+=$(printf "$fmt" ${B62[$i]} "$color" "${RADIO[$i]}")
         [ "$color" -le 160 ] && let color++ || color=130
-    done | column
+    done
+    echo $menu | column
 }
 
 _get_menu() {
     printf "Please select:\n\n"
     #tput setaf 3
     for i in ${!RADIO[@]}; do 
-        printf "%3x: %-24s\n" $(expr $i + 1) ${RADIO[$i]}
+        #printf "%3x: %-24s\n" $(expr $i + 1) ${RADIO[$i]}
+        printf "%2s: %-24s\n" ${B62[$i]} ${RADIO[$i]}
     done | column
     #tput sgr0
 }

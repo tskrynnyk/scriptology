@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+#set -x
+
+UPDATE_STATE=n
+VERBOSE=y
+
+PING_TMOUT=10
+ONLINE_STATE=/run/online
+ONLINE_CHECK=1.1.1.$((RANDOM%10))
+ONLINE_IP=https://icanhazip.com/
+
+#echo -n >/dev/tcp/8.8.8.8/53; echo $?
+#cat < /dev/null > /dev/tcp/8.8.8.8/53 &>/dev/null
+#ping -W${PING_TMOUT} -c1 $ONLINE_CHECK &>/dev/null
+PING_OUTPUT=$(ping -W${PING_TMOUT} -c1 -n $ONLINE_CHECK)
+
+RET=$?
+
+if [ "$RET" -eq 0 ]; then
+    if [[ "$UPDATE_STATE" =~ [1yY] ]]; then
+        touch $ONLINE_STATE
+    else
+        [ ! -f $ONLINE_STATE ] && touch $ONLINE_STATE
+    fi
+    [ "$1" == 'ip' ] && ( curl -s -4 $ONLINE_IP | tee $ONLINE_STATE )
+else
+    rm -f $ONLINE_STATE
+    if [[ "$VERBOSE" =~ [1yY] ]]; then
+        printf -- "*** OUTPUT START ***\n%s\n*** OUTPUT END ***\n\n" "$PING_OUTPUT"
+    fi
+fi
+
+exit $RET
