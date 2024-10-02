@@ -17,7 +17,7 @@ _hit_any_key() {
 }
 
 #RADIO=($(ls $RADIO_DIR))
-readarray RADIO < <(ls $RADIO_DIR)
+readarray RADIO < <(ls --hide=*.old $RADIO_DIR)
 
 _get_rainbow_menu() {
     fmt="%2s: \033[38;5;%im%-24s\033[0m\n"
@@ -47,16 +47,19 @@ while true; do
     clear
     [ "$RAINBOW_MENU" ] && _get_rainbow_menu || _get_menu
     echo
-    read -n1 -p "/[0-9a-zA-Z]|.|Q/ > " OPTION
+    read -rsn1 -p "/[0-9a-zA-Z]|.|Q/ > " OPTION
     echo
     case $OPTION in
         Q)
             break
             ;;
-        L)
+        H|L)
             cat ${RADIO_LOG} | column -t --table-columns DATE,TIME,STATION -s ';'
             _hit_any_key
             continue
+            ;;
+        $'\x09') # TAB
+            cat $RADIO_LOG
             ;;
         +([0-9a-zA-Z]))
             #IDX=$(($OPTION - 1))
