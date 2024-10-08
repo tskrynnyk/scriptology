@@ -3,7 +3,6 @@ SHELL := /bin/bash
 include .env
 
 PASSWORD_STORE_DIR ?= $$HOME/.password-store
-PUBLIC_KEY  = pub.key
 PRIVATE_KEY = priv.key
 
 all: help
@@ -14,20 +13,22 @@ help:
 
 setup: send-to-remote
 
-send-to-remote: $(PUBLIC_KEY) $(PRIVATE_KEY)
+send-to-remote: $(PRIVATE_KEY)
 	@#scp $^ $(REMOTE_HOST):.
 	cd .. && scp -P $(REMOTE_PORT) -r pass $(REMOTE_HOST):.
-
-$(PUBLIC_KEY):
-	gpg --export '$(PASS_KEY)' >$@
 
 $(PRIVATE_KEY):
 	gpg --export-secret-keys '$(PASS_KEY)' >$@
 
-install: import-secret-key set-pass-dir-env get-pass-db configure-git-helper
+install: import-key trust-key set-pass-dir-env get-pass-db configure-git configure-git-helper configure-git-helper-local
 
-import-secret-key:
+import-key:
 	gpg --list-secret-keys '$(PASS_KEY)' &>/dev/null || gpg --import $(PRIVATE_KEY)
+
+trust-key:
+	(echo 5; echo y; echo save) \
+		| gpg --command-fd 0 --no-tty --no-greeting -q \
+		--edit-key "$$(gpg --list-packets $(PRIVATE_KEY) | awk '$$1=="keyid:"{print $$2;exit}')" trust
 
 set-pass-dir-env:
 	if [[ ! "$(PASSWORD_STORE_DIR)" =~ '.password-store' ]]; then \
@@ -37,11 +38,18 @@ set-pass-dir-env:
 
 get-pass-db: $(PASSWORD_STORE_DIR)
 
+configure-git:
+	[[ -z "$$(git config get --global user.name)" ]] && git config --global user.name "$(USERNAME)"
+	[[ -z "$$(git config get --global user.email)" ]] && git config --global user.email "$(EMAIL)"
+
 configure-git-helper:
 	git config --global credential.helper '!pass-git-helper $$@'
 	mkdir -p ~/.config/pass-git-helper
 	echo -e '[DEFAULT]\nusername_extractor=regex_search\nregex_username=^login: (.*)$$\n' \
 		>~/.config/pass-git-helper/git-pass-mapping.ini
+
+configure-git-helper-local:
+	for i in *.local; do [ -x "$$i" ] && ./$$i; done
 
 $(PASSWORD_STORE_DIR):
 	git clone https://$(GIT_USER):$(GIT_PASSWD)@$(GIT_URL) $@ \
@@ -55,12 +63,12 @@ uninstall:
 	sed -i '/export PASSWORD_STORE_DIR/d' ~/.bash_profile
 	sed -i '/export PASSWORD_STORE_DIR/d' ~/.xprofile
 	gpg --list-secret-keys '$(PASS_KEY)' &>/dev/null \
-		&& gpg --yes --delete-secret-key '$(PASS_KEY)'
+		&& gpg --batch --yes --delete-secret-key '$(PASS_KEY)'
 	git config --global --unset credential.helper
 
 clean:
-	rm -f $(PUBLIC_KEY) $(PRIVATE_KEY)
+	rm -f $(PRIVATE_KEY)
 
-.PHONY: clean distclean local send-to-remote remote import-secret-key set-pass-dir-env set-git-helper
+.PHONY: clean distclean setup install send-to-remote import-key set-pass-dir-env configure-git configure-git-helper configure-git-helper-local
 
 
