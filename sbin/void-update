@@ -38,7 +38,7 @@ boot_toggle() {
 #}
 
 check_connection() {
-    if ping -W10 -c1 8.8.8.8 >/dev/null; then
+    if ping -W10 -c1 1.1.1.$((RANDOM%9+1)) >/dev/null; then
             msg 'Network connection: online'
     else
             msg 'Network connection: offline'
@@ -51,8 +51,20 @@ check_connection
 msg 'Syncing repositories (xbps-install -S)'
 xbps-install -S 1>/dev/null
 
+set +e
+
 msg 'Updating packages (xbps-install -yu)'
 xbps-install -yu 1>/dev/null
+
+if [ "$?" -eq 16 ]; then
+    msg 'Updating xbps (xbps-install -yu xbps)'
+    xbps-install -yu xbps 1>/dev/null
+
+    msg 'Updating packages (xbps-install -yu)'
+    xbps-install -yu 1>/dev/null
+fi
+
+set -e
 
 msg 'Cleaning package cache (xbps-remove -yO)'
 xbps-remove -yO 1>/dev/null
