@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+#
+
+REPO_DIR=${1:?Repo dir is required}
+
+if [ ! -d "$REPO_DIR" ]; then
+    echo 'Repo dir not found'
+    exit 1
+else
+    git -C "$REPO_DIR" rev-parse 2>/dev/null
+    if [ "$?" -ne 0 ]; then
+        echo 'Not a git repo'
+        exit 128
+    fi
+fi
+
+_continue() {
+    question=${1:-Continue}
+    ret=1
+    read -r -p "${question}? [y/N]: " ans
+    [[ $ans == [yY] ]] && ret=0
+    return $ret
+}
+
+_pull() {
+    _continue Pull
+    if [ $? == 0 ]; then
+        git pull
+    fi
+}
+
+_push() {
+    _continue Push
+    if [ $? == 0 ]; then
+        git push
+    fi
+}
+
+_commit() {
+    _continue Commit
+    if [ $? == 0 ]; then
+        git status -uall --porcelain \
+        | while read fstatus fname; do 
+            case $fstatus in
+                M) # updated in index
+                    action='Update' ;;
+                T) # type changed in index
+                    action='Change type' ;;
+                A|\?\?) # added to index
+                    action='Add' ;;
+                D) # deleted from index
+                    action='Delete' ;;
+                R) # renamed in index
+                    action='Rename' ;;
+                C) # copied in index
+                    action='Copy' ;;
+                *) ;;
+            esac
+        if [ -n "$action" ]; then
+            git add "$fname" \
+                && git commit -m "'$action $fname'"
+            unset action
+            echo 'Success!'
+        else
+            echo 'Failed!'
+        fi
+        done
+    fi
+}
+
+cd $REPO_DIR
+git status -uall
+_pull
+_commit
+_push
+
+
+
