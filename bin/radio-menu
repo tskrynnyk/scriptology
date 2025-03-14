@@ -17,7 +17,7 @@ _hit_any_key() {
 }
 
 #RADIO=($(ls $RADIO_DIR))
-readarray RADIO < <(ls --hide=*.old $RADIO_DIR)
+readarray RADIO < <(cd $RADIO_DIR && ls *.{m3u,pls})
 
 _get_rainbow_menu() {
     fmt="%2s: \033[38;5;%im%-24s\033[0m\n"
