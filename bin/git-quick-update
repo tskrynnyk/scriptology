@@ -58,7 +58,7 @@ _commit() {
             esac
         if [ -n "$action" ]; then
             git add "$fname" \
-                && git commit -m "'$action $fname'"
+                && git commit -m "$action $fname"
             unset action
             echo 'Success!'
         else
