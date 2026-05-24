@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+# git-quick-sync
+#
+
+REPO_DIR=${1:-$PWD}
+PUSH_NEEDED=0
+
+if [ ! -d "$REPO_DIR" ]; then
+    echo 'Error: Repo dir not found'
+    exit 1
+else
+    git -C "$REPO_DIR" rev-parse 2>/dev/null
+    if [ "$?" -ne 0 ]; then
+        echo 'Error: Not a git repo'
+        exit 128
+    fi
+fi
+
+trap 'echo -e "\nInterrupted."; exit 1' SIGINT
+
+_continue() {
+    question=${1:-Continue}
+    ret=1
+    read -r -p "${question}? [y/N]: " ans
+    [[ $ans == [yY] ]] && ret=0
+    return $ret
+}
+
+_add_commit() {
+    git add "$2"
+    git commit -m "$1 $2"
+    ((PUSH_NEEDED++))
+}
+
+git_pull() {
+    _continue 'git pull'
+    if [ $? == 0 ]; then
+        git pull
+    fi
+}
+
+git_push() {
+    _continue 'git push'
+    if [ $? == 0 ]; then
+        git push
+    fi
+}
+
+git_sync() {
+    while IFS= read -r -u 3 line; do
+        fstatus="${line:0:2}"
+        fname="${line:3}"
+
+        case "$fstatus" in
+            "??")
+                _continue "Untracked file '$fname'. Commit" \
+                    && _add_commit 'Add' "$fname"
+                ;;
+            "M " | " M" | "MM")
+                _continue "Modified file '$fname'. Commit" \
+                    && _add_commit 'Update' "$fname"
+                ;;
+            "D " | " D" | "DD")
+                _continue "Deleted file '$fname'. Commit" \
+                    && _add_commit 'Remove' "$fname"
+                ;;
+            "R " | " R")
+                _continue "Renamed file '$fname'. Commit" \
+                    && _add_commit 'Move' "$fname"
+                ;;
+        esac
+    done 3< <(git status --porcelain)
+}
+
+cd $REPO_DIR
+
+git_pull
+git_sync
+[ "$PUSH_NEEDED" -gt 0 ] && git_push
+
