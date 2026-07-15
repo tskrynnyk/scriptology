@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+# /usr/local/bin/sshd-watchdog.sh
+
+HOST="127.0.0.1"
+PORT="22"
+TIMEOUT=5
+LOG="/var/log/sshd-watchdog.log"
+SVDIR="sshd"
+TAG="sshd-watchdog"
+
+# Minimum level to actually log. Options: debug, info, notice, warning, err
+LOG_LEVEL="${LOG_LEVEL:-warning}"
+
+level_weight() {
+    case "$1" in
+        debug)   echo 0 ;;
+        info)    echo 1 ;;
+        notice)  echo 2 ;;
+        warning) echo 3 ;;
+        err)     echo 4 ;;
+        *)       echo 1 ;;
+    esac
+}
+
+log() {
+    local level="$1"
+    local msg="$2"
+
+    if (( $(level_weight "$level") < $(level_weight "$LOG_LEVEL") )); then
+        return 0
+    fi
+
+    #echo "$(date '+%F %T') [$level]: $msg" >> "$LOG"
+    logger -t "$TAG" -p "daemon.$level" "$level: $msg"
+}
+
+check_sshd() {
+    SSHD_BANNER=$(timeout "$TIMEOUT" bash -c "exec 3<>/dev/tcp/$HOST/$PORT; head -c 20 <&3" 2>/dev/null)
+    [[ "$SSHD_BANNER" == SSH-* ]]
+}
+
+if check_sshd; then
+    log "info" "SSHd is responding correctly ($SSHD_BANNER)"
+    exit 0
+fi
+
+log "warning" "SSHd is not responding correctly (got: '${SSHD_BANNER:-no response}') - restarting"
+sv restart "$SVDIR" >> "$LOG" 2>&1
+sleep 5
+
+if check_sshd; then
+    log "notice" "SSHd recovered after restart ($SSHD_BANNER)"
+else
+    log "err" "SSHd still not responding after restart!"
+fi
+
