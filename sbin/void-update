@@ -60,7 +60,7 @@ ensure_sshd() {
     msg "sshd check: not responding ('${SSHD_BANNER:-no response}') - restarting"
     sv restart sshd >/dev/null 2>&1
 
-    sleep 2
+    sleep 3
 
     if check_sshd; then
         msg "sshd check: recovered after restart ($SSHD_BANNER)"
