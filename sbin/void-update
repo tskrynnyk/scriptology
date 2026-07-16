@@ -46,6 +46,29 @@ check_connection() {
     fi
 }
 
+check_sshd() {
+    SSHD_BANNER=$(timeout 5 bash -c 'exec 3<>/dev/tcp/127.0.0.1/22; head -c 20 <&3' 2>/dev/null)
+    [[ "$SSHD_BANNER" == SSH-* ]]
+}
+
+ensure_sshd() {
+    if check_sshd; then
+        msg "sshd check: OK ($SSHD_BANNER)"
+        return 0
+    fi
+
+    msg "sshd check: not responding ('${SSHD_BANNER:-no response}') - restarting"
+    sv restart sshd >/dev/null 2>&1
+
+    sleep 2
+
+    if check_sshd; then
+        msg "sshd check: recovered after restart ($SSHD_BANNER)"
+    else
+        msg "sshd check: still not responding after restart!"
+    fi
+}
+
 check_connection
 
 msg 'Syncing repositories (xbps-install -S)'
@@ -65,6 +88,9 @@ if [ "$?" -eq 16 ]; then
 fi
 
 set -e
+
+msg 'Checking sshd status after update'
+ensure_sshd
 
 msg 'Cleaning package cache (xbps-remove -yO)'
 xbps-remove -yO 1>/dev/null
