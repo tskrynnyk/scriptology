@@ -9,11 +9,26 @@
 
 set -e
 
+is_tty() {
+    [[ -t 1 ]]
+}
+
 msg() {
-    if [ -t 1 ] ; then
-        echo "$1"
+    local message="$1"
+
+    if is_tty; then
+        echo '***' "$message"
     else
-        logger -s --id=$$ -t void-update -p cron.notice "$1" 1>/dev/null
+        logger --id="$$" -t "void-update" -p "cron.notice" "$message"
+    fi
+}
+
+run() {
+    if is_tty; then
+        "$@"
+    else
+        #"$@" 1>/dev/null 2> >(logger --id="$$" -t "void-update" -p "cron.err")
+        "$@" 1>/dev/null
     fi
 }
 
@@ -58,7 +73,7 @@ ensure_sshd() {
     fi
 
     msg "sshd check: not responding ('${SSHD_BANNER:-no response}') - restarting"
-    sv restart sshd >/dev/null 2>&1
+    run sv restart sshd
 
     sleep 3
 
@@ -72,19 +87,19 @@ ensure_sshd() {
 check_connection
 
 msg 'Syncing repositories (xbps-install -S)'
-xbps-install -S 1>/dev/null
+run xbps-install -S
 
 set +e
 
 msg 'Updating packages (xbps-install -yu)'
-xbps-install -yu 1>/dev/null
+run xbps-install -yu
 
 if [ "$?" -eq 16 ]; then
     msg 'Updating xbps (xbps-install -yu xbps)'
-    xbps-install -yu xbps 1>/dev/null
+    run xbps-install -yu xbps
 
     msg 'Updating packages (xbps-install -yu)'
-    xbps-install -yu 1>/dev/null
+    run xbps-install -yu
 fi
 
 set -e
@@ -93,16 +108,16 @@ msg 'Checking sshd status after update'
 ensure_sshd
 
 msg 'Cleaning package cache (xbps-remove -yO)'
-xbps-remove -yO 1>/dev/null
+run xbps-remove -yO
 
 msg 'Removing orphaned packages (xbps-remove -yo)'
-xbps-remove -yo 1>/dev/null
+run xbps-remove -yo
 
 #msg 'Syncing xlocate (xlocate -S)'
 #sudo xlocate -S 1>/dev/null
 
 msg 'Purging old kernels (vkpurge rm all)'
-vkpurge rm all 1>/dev/null
+run vkpurge rm all
 
 touch /var/cache/void-update
 msg 'Update completed successfully.'
