@@ -9,6 +9,8 @@
 
 set -e
 
+CLEAN_CACHE=1
+
 is_tty() {
     [[ -t 1 ]]
 }
@@ -86,6 +88,11 @@ ensure_sshd() {
 
 check_connection
 
+if [[ "$CLEAN_CACHE" == [Yy1] ]]; then
+    msg 'Cleaning package cache (xbps-remove -yO)'
+    run xbps-remove -yO
+fi
+
 msg 'Syncing repositories (xbps-install -S)'
 run xbps-install -S
 
@@ -106,9 +113,6 @@ set -e
 
 msg 'Checking sshd status after update'
 ensure_sshd
-
-msg 'Cleaning package cache (xbps-remove -yO)'
-run xbps-remove -yO
 
 msg 'Removing orphaned packages (xbps-remove -yo)'
 run xbps-remove -yo
