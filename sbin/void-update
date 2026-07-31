@@ -10,6 +10,7 @@
 set -e
 
 CLEAN_CACHE=1
+TIMESTAMP_FILE=/var/cache/void-update
 
 is_tty() {
     [[ -t 1 ]]
@@ -86,6 +87,8 @@ ensure_sshd() {
     fi
 }
 
+msg "Last update: $(stat -c '%y' $TIMESTAMP_FILE)"
+
 check_connection
 
 if [[ "$CLEAN_CACHE" == [Yy1] ]]; then
@@ -123,6 +126,6 @@ run xbps-remove -yo
 msg 'Purging old kernels (vkpurge rm all)'
 run vkpurge rm all
 
-touch /var/cache/void-update
+touch $TIMESTAMP_FILE
 msg 'Update completed successfully.'
 
