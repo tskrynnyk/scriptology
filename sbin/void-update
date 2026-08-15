@@ -9,7 +9,8 @@
 
 set -e
 
-CLEAN_CACHE=1
+CLEAN_CACHE=0
+RM_ALL_OLD_KERNELS=0
 TIMESTAMP_FILE=/var/cache/void-update
 
 is_tty() {
@@ -123,8 +124,13 @@ run xbps-remove -yo
 #msg 'Syncing xlocate (xlocate -S)'
 #sudo xlocate -S 1>/dev/null
 
-msg 'Purging old kernels (vkpurge rm all)'
-run vkpurge rm all
+if [[ "$RM_ALL_OLD_KERNELS" == [Yy1] ]]; then
+    msg 'Purging old kernels (vkpurge rm all)'
+    run vkpurge rm all
+#else
+#    msg 'Listing old kernels (vkpurge list)'
+#    run vkpurge list
+fi
 
 touch $TIMESTAMP_FILE
 msg 'Update completed successfully.'
