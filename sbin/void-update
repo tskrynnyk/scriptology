@@ -9,8 +9,9 @@
 
 set -e
 
-CLEAN_CACHE=0
-RM_ALL_OLD_KERNELS=0
+CLEAN_CACHE=${CLEAN_CACHE:-0}
+RM_ALL_OLD_KERNELS=${RM_ALL_OLD_KERNELS:-0}
+
 TIMESTAMP_FILE=/var/cache/void-update
 
 is_tty() {
